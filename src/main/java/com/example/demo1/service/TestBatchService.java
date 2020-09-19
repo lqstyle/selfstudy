@@ -19,5 +19,12 @@ public interface TestBatchService extends IService<TestBatch> {
 
   void savePrice(TestPrice testPrice);
 
-  void isolation();
+  //脏读 ，并发度最高
+  void dityIsolation();
+
+  //不可重复读
+  void noReaptableIsolation();
+
+  //幻读
+  void hdIsolation();
 }

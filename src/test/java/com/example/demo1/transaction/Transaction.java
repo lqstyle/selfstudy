@@ -1,10 +1,8 @@
 package com.example.demo1.transaction;
 
 import com.example.demo1.entity.TestBatch;
-import com.example.demo1.entity.TestPrice;
 import com.example.demo1.service.TestBatchService;
 import com.example.demo1.service.TestPriceService;
-import java.math.BigDecimal;
 import javax.annotation.Resource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +31,16 @@ public class Transaction {
         .price(BigDecimal.TEN).build();
     testPriceService.saveTestPrice(testPrice);
 */
+  }
+
+  @Test
+  public void test111() {
+    testBatchService.dityIsolation();
+  }
+
+  @Test
+  public void test22() {
+    testBatchService.noReaptableIsolation();
   }
 
 }
