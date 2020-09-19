@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo1.mapper.TestBatchMapper">
+
+  <!-- 通用查询映射结果 -->
+  <resultMap id="BaseResultMap" type="com.example.demo1.entity.TestBatch">
+    <result column="city_name" property="cityName"/>
+    <result column="balance_type" property="balanceType"/>
+    <result column="balance_type_name" property="balanceTypeName"/>
+    <result column="project_name" property="projectName"/>
+    <result column="stimate_price" property="stimatePrice"/>
+    <result column="bond" property="bond"/>
+    <result column="prepay_bond" property="prepayBond"/>
+    <result column="prepay_rent" property="prepayRent"/>
+    <result column="prepay_freight" property="prepayFreight"/>
+    <result column="logistics_freight" property="logisticsFreight"/>
+    <result column="updatetime" property="updatetime"/>
+    <result column="settlement_scope" property="settlementScope"/>
+    <result column="settlement_scope_name" property="settlementScopeName"/>
+    <result column="payment_ratio" property="paymentRatio"/>
+    <result column="payment_ratio_name" property="paymentRatioName"/>
+    <result column="account_period" property="accountPeriod"/>
+    <result column="store_code" property="storeCode"/>
+    <result column="createby" property="createby"/>
+    <result column="createname" property="createname"/>
+    <result column="payercode" property="payercode"/>
+    <result column="payername" property="payername"/>
+    <result column="signupdate_time" property="signupdateTime"/>
+    <result column="ordercode" property="ordercode"/>
+  </resultMap>
+
+  <select id="loadTestBatch" parameterType="java.lang.String">
+        load data local infile #{fileName} into table test.test_batch  fields terminated by ','
+        lines terminated by '\r\n' (
+        city_name,
+        balance_type,
+        balance_type_name,
+        project_name,
+        stimate_price,
+        bond,
+        prepay_bond,
+        prepay_rent,
+        prepay_freight,
+        logistics_freight,
+        updatetime,
+        settlement_scope,
+        settlement_scope_name,
+        payment_ratio,
+        payment_ratio_name,
+        account_period,
+        store_code,
+        createby,
+        createname,
+        payercode,
+        payername,
+        signupdate_time,
+        ordercode
+        );
+    </select>
+
+  <delete id="deteleByOrderCodes" parameterType="java.util.List">
+    DELETE FROM test_batch WHERE ordercode IN
+    <foreach collection="list" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </delete>
+</mapper>

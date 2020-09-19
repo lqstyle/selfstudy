@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo1.mapper.TestNumberMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.demo1.entity.TestNumber">
+        <id column="id" property="id" />
+        <result column="number" property="number" />
+        <result column="type" property="type" />
+        <result column="comid" property="comid" />
+        <result column="location" property="location" />
+    </resultMap>
+    <select id="loadNumberTest">
+        load data local infile 'D:\\test\\test2.csv' into table test.test_number fields terminated by ','lines terminated by '\r\n' (number,type,location,comid);
+    </select>
+</mapper>

@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    #mysql
+    url: jdbc:mysql://192.168.2.217:3306/test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull
+    # infobright 列式存储引擎
+    #url: jdbc:mysql://192.168.2.217:5029/test?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&failOverReadOnly=false
+    username: opsa
+    password: pass123456
+    schema: classpath:/org/springframework/batch/core/schema-mysql.sql
+
+  data:
+    solr:
+      host: http://127.0.0.1:8080/solr/soreCore0719
+    elasticsearch:
+      cluster-nodes: 10.101.12.38:9300
+      cluster-name:  elasticsearch
+  batch:
+    initialize-schema: always
+    job:
+      enabled: false  # 设置启动不执行job
+server:
+  port: 8090
+file:
+  path: D:\test
+mybatis-plus:
+  mapper-locations: classpath:mapper/*Mapper.xml
