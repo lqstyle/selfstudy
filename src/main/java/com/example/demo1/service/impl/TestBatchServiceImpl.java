@@ -98,15 +98,16 @@ public class TestBatchServiceImpl extends ServiceImpl<TestBatchMapper, TestBatch
   @Override
   @Transactional
   public void dityIsolation() {
-    dityRead();
+    object.dityRead();
   }
 
   @Override
   public void noReaptableIsolation() {
-    noReaptable();
+    object.noReaptable();
   }
 
-  private void noReaptable() {
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void noReaptable() {
     //线程一执行新增
     executorService.execute(() -> {
       object.saveNoRepeatableMethod();
@@ -130,12 +131,6 @@ public class TestBatchServiceImpl extends ServiceImpl<TestBatchMapper, TestBatch
     getBaseMapper().insert(testBatch);
 
     flag = Boolean.TRUE;
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    System.out.println("睡眠苏醒");
   }
 
   @Transactional(isolation = Isolation.READ_COMMITTED)
@@ -151,6 +146,11 @@ public class TestBatchServiceImpl extends ServiceImpl<TestBatchMapper, TestBatch
     while (!flag) {
 
     }
+    try {
+      Thread.sleep(2000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     System.out.println("数据入库后读取");
     QueryWrapper<TestBatch> queryWrapper = new QueryWrapper<>();
     queryWrapper.eq("city_name", "lq");
@@ -160,11 +160,9 @@ public class TestBatchServiceImpl extends ServiceImpl<TestBatchMapper, TestBatch
     }
   }
 
-  private void dityRead() {
-    hdRead();
-  }
 
-  private void hdRead() {
+  @Transactional
+  public void dityRead() {
     //线程一执行新增
     executorService.execute(() -> {
       object.saveMethod();
@@ -181,8 +179,8 @@ public class TestBatchServiceImpl extends ServiceImpl<TestBatchMapper, TestBatch
 
   }
 
-  //@Transactional(isolation = Isolation.READ_UNCOMMITTED)  出现脏读
-  @Transactional(isolation = Isolation.READ_COMMITTED)  //
+  @Transactional(isolation = Isolation.READ_UNCOMMITTED)  //出现脏读
+  //@Transactional(isolation = Isolation.READ_COMMITTED)  //
   public void queryMethod() {
     System.out.println("线程查询");
     while (!flag) {
