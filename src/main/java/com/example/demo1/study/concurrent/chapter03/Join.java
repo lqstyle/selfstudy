@@ -11,6 +11,13 @@ join
 sleep
 wait
 都是可中断的
+
+线程退出
+jvm crash
+异常捕获
+volatile
+join 可中断进行打断
+Countdownlatch Semphore  CyclicBarrier
  */
 public class Join {
 
@@ -44,6 +51,7 @@ public class Join {
   private static Thread createThread(int i) {
     return new Thread(() -> {
 /*
+//此方法废弃，可能不会释放monitor锁，会导致任务未执行完的问题
       Thread.currentThread().stop();
 */
       for (int j = 0; j < 5; j++) {
