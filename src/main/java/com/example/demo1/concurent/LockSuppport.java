@@ -12,7 +12,7 @@ park(Blocker)
 因为对于Thread 的二进制字节流文件加载进来放到方法区中后，调用clint初始化生成Thread的Class对象
 对于每一个线程实例，里面的parkBlocker Object类型的属性在不同的线程实例中对应的堆内存中的地址的偏移量是相同的
 后续对于每一次针对线程的park（Blocker）设置parkBlocker的时候都是同一个偏移量,字段在类中的
-偏移量是相同的个，方便进行监控
+偏移量是相同的个，方便进行线程的问题排查和系统监控
 1.6提供的方法
 
 底层是通过本地方法 park unpark（Unsafe 类 sun.misc下的）
