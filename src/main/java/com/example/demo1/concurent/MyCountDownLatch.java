@@ -3,6 +3,8 @@ package com.example.demo1.concurent;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -17,7 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 public class MyCountDownLatch {
 
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
+    LockSupport.unpark(Thread.currentThread());
+    LockSupport.park(Thread.currentThread());
+    TimeUnit.SECONDS.sleep(2);
     Integer i = 100;
     //赛车计时器
     CountDownLatch start = new CountDownLatch(i);
