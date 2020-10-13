@@ -30,6 +30,7 @@ public class SingleNode {
       case 3:
         Node n = querynoo(sanner);
         System.out.println(n.toString());
+        break;
       default:
         break;
     }
