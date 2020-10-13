@@ -10,6 +10,13 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
 
+/*
+公平锁和非公平锁
+
+非公平锁 在尝试获得锁之前，会进行cas自旋设置状态，失败在进行尝试获得锁
+成功则获得锁，失败则加入到CLH队列
+公平锁   尝试获得锁 会先判断是否有前继节点 如果没有，则尝试获得锁，成功则获得锁，失败则加入CLH队列
+ */
 @Slf4j
 public class FizzLock {
 
