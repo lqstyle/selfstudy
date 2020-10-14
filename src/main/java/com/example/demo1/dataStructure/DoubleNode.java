@@ -1,5 +1,6 @@
 package com.example.demo1.dataStructure;
 
+import com.example.demo1.cycleDepency.A;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -65,7 +66,23 @@ public class DoubleNode {
    * @param scanner
    */
   private static void queryDoubleNode(Scanner scanner) {
-
+    System.out.println("请输入查询的节点");
+    int position = Integer.parseInt(scanner.nextLine());
+    if(position>=size.get()){
+      System.out.println("输入节点大于总大小，请检查");
+      position=Integer.parseInt(scanner.nextLine());
+    }
+    int i =0;
+    Node node = null;
+    while(i<=position){
+      i++;
+      if(node == null){
+        node = head;
+      }else{
+        node =node.next;
+      }
+    }
+    System.out.println(node);
   }
 
   /**
@@ -74,6 +91,73 @@ public class DoubleNode {
    * @param scanner
    */
   private static void deleteDoubleNode(Scanner scanner) {
+    System.out.println("请输入刪除数据的位置");
+    Integer position = Integer.valueOf(scanner.nextLine());
+    if (position >= size.get()) {
+      throw new RuntimeException("删除数据位置异常");
+    }
+    if (position == 0) {
+      //头部刪除
+      /*
+        head指向 头部的next
+       新的头部元素的pre为null
+      头部元素的next指向null
+       size-1
+       */
+
+      Node temp = head;
+      Node node = temp.next;
+      node.prev = null;
+      temp.next = null;
+      head = node;
+      size.decrementAndGet();
+    } else if (position == size.get()-1) {
+      //尾部删除
+      /*
+       新的尾部元素的next指向null
+      尾部元素的pre指向null
+      tail指向新的尾部元素
+      size--
+       */
+      Node temp = tail;
+      Node node = temp.prev;
+      node.next = null;
+      temp.prev = null;
+
+      tail = node;
+
+      size.decrementAndGet();
+    } else {
+      //中间删除
+      /*
+      定位到节点的位置
+      获取当前位置的节点元素
+      获取下一位置的节点元素
+      前一位置的节点元素
+      将前一位置的节点元素的next指向下一位置
+      下一位置的prev指向前一位置
+      当前节点的next指向null prev指向null
+       */
+      Node node = null;
+      AtomicInteger i = new AtomicInteger();
+      while (i.get() <= position) {
+        if (node == null) {
+          node = head;
+        } else {
+          node = node.next;
+        }
+        i.incrementAndGet();
+      }
+      Node prev = node.prev;
+      Node next = node.next;
+      prev.next = next;
+      next.prev = prev;
+
+      node.next = null;
+      node.prev = null;
+      size.decrementAndGet();
+    }
+    System.out.println(head.toString());
   }
 
   /**
@@ -109,6 +193,7 @@ public class DoubleNode {
 
       head = node;
     } else if (position == size.get()) {
+
       /*
       尾部插入
       1. 将新节点的next=null
@@ -116,14 +201,20 @@ public class DoubleNode {
       2. 尾节点的next指向新节点
       3. 尾节点的指向新节点
        */
-      Node tailNode = tail;
 
-      node.prev = tailNode;
-      node.next = null;
+      //初始化
+      if (tail == null) {
+        head = tail = node;
+      } else {
 
-      tailNode.next = node;
+        Node tailNode = tail;
 
-      tail = node;
+        node.prev = tailNode;
+        node.next = null;
+
+        tailNode.next = node;
+        tail = node;
+      }
     } else {
       /*
       中间插入
@@ -180,7 +271,7 @@ public class DoubleNode {
     @Override
     public String toString() {
       return "Node{" +
-          ", o=" + o +
+          "o=" + o +
           '}';
     }
   }
