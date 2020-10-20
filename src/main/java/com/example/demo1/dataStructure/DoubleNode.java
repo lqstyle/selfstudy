@@ -1,6 +1,5 @@
 package com.example.demo1.dataStructure;
 
-import com.example.demo1.cycleDepency.A;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
