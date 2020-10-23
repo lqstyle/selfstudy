@@ -1,0 +1,15 @@
+zk选举机制
+
+zk的节点数最好是奇数 ，避免资源浪费
+zk集群工作的条件是最少半数以上的节点存活，集群才可以正常工作，受制于选举条件
+myid小的节点会给myid大的节点投票
+following  leading
+follwer      leader
+
+比如五个节点，按照顺序启动
+myid1启动先给自己投票 1 票 looking
+myid2启动 给自己投片，myid1先给自己投票，然后更改选票会给myid2投票  myid2  2票  myid1 0票   状态均为looking
+myid3 启动                           					    myid3  3票   myid2 0票  myid1 0票   myid3  leader    myid1 follower  myid2 follower
+myid4 启动                                                                                                  一开始投自己一票，其他的节点已经是following状态，无法更改， 因为myid3 已经是leader ，把选票更改为给myid3
+                                  					   myid3   4票
+myid5 启动						  同myid4  myid3  5票
