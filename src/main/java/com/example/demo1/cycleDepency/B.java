@@ -1,6 +1,9 @@
 package com.example.demo1.cycleDepency;
 
+import java.lang.annotation.Annotation;
 import javax.annotation.Resource;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class B {
-
+  @Resource
+  private A a;
 
 }

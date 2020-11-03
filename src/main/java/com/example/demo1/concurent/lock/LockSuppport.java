@@ -1,4 +1,4 @@
-package com.example.demo1.concurent;
+package com.example.demo1.concurent.lock;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
