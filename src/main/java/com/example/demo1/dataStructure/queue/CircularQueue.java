@@ -1,4 +1,4 @@
-package com.example.demo1.dataStructure;
+package com.example.demo1.dataStructure.queue;
 
 import java.util.Scanner;
 

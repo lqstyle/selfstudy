@@ -1,4 +1,4 @@
-package com.example.demo1.dataStructure;
+package com.example.demo1.dataStructure.linkedList;
 
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;

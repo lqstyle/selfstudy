@@ -1,4 +1,4 @@
-package com.example.demo1.dataStructure;
+package com.example.demo1.dataStructure.array;
 
 
 import java.io.*;

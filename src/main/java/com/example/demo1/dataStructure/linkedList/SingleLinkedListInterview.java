@@ -1,4 +1,6 @@
-package com.example.demo1.dataStructure;
+package com.example.demo1.dataStructure.linkedList;
+
+import com.example.demo1.dataStructure.linkedList.SingleLinkedList;
 
 import java.util.Objects;
 import java.util.Stack;
