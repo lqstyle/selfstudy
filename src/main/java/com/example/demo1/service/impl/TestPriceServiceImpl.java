@@ -96,6 +96,7 @@ public class TestPriceServiceImpl extends ServiceImpl<TestPriceMapper, TestPrice
     @Transactional(propagation = Propagation.REQUIRED)
     public void saveTestPrice(TestPrice testPrice) {
         getBaseMapper().insert(testPrice);
+        throw  new RuntimeException();
     }
 
 }

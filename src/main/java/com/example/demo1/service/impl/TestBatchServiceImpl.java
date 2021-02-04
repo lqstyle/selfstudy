@@ -8,16 +8,6 @@ import com.example.demo1.mapper.TestBatchMapper;
 import com.example.demo1.service.TestBatchService;
 import com.example.demo1.service.TestPriceService;
 import com.example.demo1.util.ApplicationContextUtil;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
@@ -25,6 +15,13 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
 /**
  * <p>
@@ -40,179 +37,187 @@ import org.springframework.util.CollectionUtils;
 @DependsOn("applicationContextUtil")
 @Slf4j
 public class TestBatchServiceImpl extends ServiceImpl<TestBatchMapper, TestBatch> implements
-    TestBatchService {
+        TestBatchService {
 
-  private TestBatchServiceImpl object;
+    private TestBatchServiceImpl object;
 
-  @PostConstruct
-  private void initMethod() {
-    object = ((TestBatchServiceImpl) ApplicationContextUtil.getBean("testBatchServiceImpl"));
-  }
+    @PostConstruct
+    private void initMethod() {
+        object = ((TestBatchServiceImpl) ApplicationContextUtil.getBean("testBatchServiceImpl"));
+    }
 
-  private volatile Boolean flag = Boolean.FALSE;
-  private volatile Boolean queryFlag = Boolean.FALSE;
+    private volatile Boolean flag = Boolean.FALSE;
+    private volatile Boolean queryFlag = Boolean.FALSE;
 
-  ExecutorService executorService = new ThreadPoolExecutor(10, 10, 10, TimeUnit.SECONDS,
-      new LinkedBlockingQueue<>(10),
-      Executors.defaultThreadFactory(), new CallerRunsPolicy());
+    ExecutorService executorService = new ThreadPoolExecutor(10, 10, 10, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(10),
+            Executors.defaultThreadFactory(), new CallerRunsPolicy());
 
-  @Resource
-  private TestPriceService testPriceService;
+    @Resource
+    private TestPriceService testPriceService;
 
 
-  @Override
-  public void loadTestBatch(String fileName) {
-    super.baseMapper.loadTestBatch(fileName);
-  }
+    @Override
+    public void loadTestBatch(String fileName) {
+        super.baseMapper.loadTestBatch(fileName);
+    }
 
-  @Override
-  @Transactional(propagation = Propagation.REQUIRED)
-  public void saveBatch(TestBatch testBatch) {
-    getBaseMapper().insert(testBatch);
+    @Override
+//    @Transactional(propagation = Propagation.REQUIRED)
+    public void saveBatch(TestBatch testBatch) {
+        getBaseMapper().insert(testBatch);
 
-    TestPrice testPrice = TestPrice.builder().type("www").money(BigDecimal.ONE).comid(123L)
-        .price(BigDecimal.TEN).build();
+        TestPrice testPrice = TestPrice.builder().type("www").money(BigDecimal.ONE).comid(123L)
+                .price(BigDecimal.TEN).build();
 
-    //1. 事务不生效，不管A方法还是B方法抛异常，若不捕获，数据均不入库，若捕获，则均入库
-    //this.savePrice(testPrice);
+        //1. 事务不生效，不管A方法还是B方法抛异常，若不捕获，数据均不入库，若捕获，则均入库
+        //this.savePrice(testPrice);
+      super.baseMapper.insert(testBatch);
+        //2. 事务生效，此时使用代理对象
+        ((TestBatchServiceImpl) ApplicationContextUtil.getBean("testBatchServiceImpl"))
+                .savePrice(testPrice);
 
-    //2. 事务生效，此时使用代理对象
-    ((TestBatchServiceImpl) ApplicationContextUtil.getBean("testBatchServiceImpl"))
-        .savePrice(testPrice);
+
 /*
       ((TestBatchServiceImpl) AopContext.currentProxy()).savePrice(testPrice);
 */
 
-    /*throw new RuntimeException();*/
-  }
-
-  @Override
-  @Transactional(propagation = Propagation.MANDATORY)
-  public void savePrice(TestPrice testPrice) {
-
-    testPriceService.saveTestPrice(testPrice);
-
-    throw new RuntimeException();
-  }
-
-  @Override
-  @Transactional
-  public void dityIsolation() {
-    object.dityRead();
-  }
-
-  @Override
-  public void noReaptableIsolation() {
-    object.noReaptable();
-  }
-
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
-  public void noReaptable() {
-    //线程一执行新增
-    executorService.execute(() -> {
-      object.saveNoRepeatableMethod();
-    });
-
-    //线程二执行两次查询
-    executorService.execute(() -> {
-      object.queryTwoMethod();
-    });
-  }
-
-  @Transactional
-  public void saveNoRepeatableMethod() {
-    while (!queryFlag) {
-
+        /*throw new RuntimeException();*/
     }
-    System.out.println("执行数据插入");
-    TestBatch testBatch = new TestBatch();
-    testBatch.setCityName("lq");
-    testBatch.setBalanceType("22");
-    getBaseMapper().insert(testBatch);
 
-    flag = Boolean.TRUE;
-  }
+    @Override
+    @Transactional(propagation = Propagation.NEVER)
+    public void savePrice(TestPrice testPrice) {
 
-  @Transactional(isolation = Isolation.READ_COMMITTED)
-  public void queryTwoMethod() {
-    System.out.println("数据入库前读取");
-    QueryWrapper<TestBatch> queryWrapper1 = new QueryWrapper<>();
-    queryWrapper1.eq("city_name", "lq");
-    List<TestBatch> testBatches1 = getBaseMapper().selectList(queryWrapper1);
-    if (!CollectionUtils.isEmpty(testBatches1)) {
-      log.info("当前城市名{}", testBatches1.get(0).getCityName());
-    }
-    queryFlag = Boolean.TRUE;
-    while (!flag) {
+        try {
+            testPriceService.saveTestPrice(testPrice);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+        }
 
-    }
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    System.out.println("数据入库后读取");
-    QueryWrapper<TestBatch> queryWrapper = new QueryWrapper<>();
-    queryWrapper.eq("city_name", "lq");
-    List<TestBatch> testBatches = getBaseMapper().selectList(queryWrapper);
-    if (!CollectionUtils.isEmpty(testBatches)) {
-      log.info("当前城市名{}", testBatches.get(0).getCityName());
-    }
-  }
-
-
-  @Transactional
-  public void dityRead() {
-    //线程一执行新增
-    executorService.execute(() -> {
-      object.saveMethod();
-    });
-
-    //线程二执行查询
-    executorService.execute(() -> {
-      object.queryMethod();
-    });
-  }
-
-  @Override
-  public void hdIsolation() {
-
-  }
-
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)  //出现脏读
-  //@Transactional(isolation = Isolation.READ_COMMITTED)  //
-  public void queryMethod() {
-    System.out.println("线程查询");
-    while (!flag) {
+//        throw new RuntimeException();
 
     }
 
-    QueryWrapper<TestBatch> queryWrapper = new QueryWrapper<>();
-    queryWrapper.eq("city_name", "lq");
-    List<TestBatch> testBatches = getBaseMapper().selectList(queryWrapper);
-    if (!CollectionUtils.isEmpty(testBatches)) {
-      log.info("当前城市名{}", testBatches.get(0).getCityName());
+    @Override
+    @Transactional
+    public void dityIsolation() {
+        object.dityRead();
     }
-  }
 
-
-  @Transactional
-  public void saveMethod() {
-    System.out.println("执行数据插入");
-    TestBatch testBatch = new TestBatch();
-    testBatch.setCityName("lq");
-    testBatch.setBalanceType("22");
-    getBaseMapper().insert(testBatch);
-
-    flag = Boolean.TRUE;
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    @Override
+    public void noReaptableIsolation() {
+        object.noReaptable();
     }
-    System.out.println("睡眠苏醒");
-    throw new RuntimeException();
-  }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void noReaptable() {
+        //线程一执行新增
+        executorService.execute(() -> {
+            object.saveNoRepeatableMethod();
+        });
+
+        //线程二执行两次查询
+        executorService.execute(() -> {
+            object.queryTwoMethod();
+        });
+    }
+
+    @Transactional
+    public void saveNoRepeatableMethod() {
+        while (!queryFlag) {
+
+        }
+        System.out.println("执行数据插入");
+        TestBatch testBatch = new TestBatch();
+        testBatch.setCityName("lq");
+        testBatch.setBalanceType("22");
+        getBaseMapper().insert(testBatch);
+
+        flag = Boolean.TRUE;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void queryTwoMethod() {
+        System.out.println("数据入库前读取");
+        QueryWrapper<TestBatch> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.eq("city_name", "lq");
+        List<TestBatch> testBatches1 = getBaseMapper().selectList(queryWrapper1);
+        if (!CollectionUtils.isEmpty(testBatches1)) {
+            log.info("当前城市名{}", testBatches1.get(0).getCityName());
+        }
+        queryFlag = Boolean.TRUE;
+        while (!flag) {
+
+        }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("数据入库后读取");
+        QueryWrapper<TestBatch> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("city_name", "lq");
+        List<TestBatch> testBatches = getBaseMapper().selectList(queryWrapper);
+        if (!CollectionUtils.isEmpty(testBatches)) {
+            log.info("当前城市名{}", testBatches.get(0).getCityName());
+        }
+    }
+
+
+    @Transactional
+    public void dityRead() {
+        //线程一执行新增
+        executorService.execute(() -> {
+            object.saveMethod();
+        });
+
+        //线程二执行查询
+        executorService.execute(() -> {
+            object.queryMethod();
+        });
+    }
+
+    @Override
+    public void hdIsolation() {
+
+    }
+
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)  //出现脏读
+    //@Transactional(isolation = Isolation.READ_COMMITTED)  //
+    public void queryMethod() {
+        System.out.println("线程查询");
+        while (!flag) {
+
+        }
+
+        QueryWrapper<TestBatch> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("city_name", "lq");
+        List<TestBatch> testBatches = getBaseMapper().selectList(queryWrapper);
+        if (!CollectionUtils.isEmpty(testBatches)) {
+            log.info("当前城市名{}", testBatches.get(0).getCityName());
+        }
+    }
+
+
+    @Transactional
+    public void saveMethod() {
+        System.out.println("执行数据插入");
+        TestBatch testBatch = new TestBatch();
+        testBatch.setCityName("lq");
+        testBatch.setBalanceType("22");
+        getBaseMapper().insert(testBatch);
+
+        flag = Boolean.TRUE;
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("睡眠苏醒");
+        throw new RuntimeException();
+    }
 
 
 }

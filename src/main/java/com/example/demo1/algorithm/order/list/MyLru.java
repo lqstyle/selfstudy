@@ -1,6 +1,7 @@
 package com.example.demo1.algorithm.order.list;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**

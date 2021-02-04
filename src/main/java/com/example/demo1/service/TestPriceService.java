@@ -26,7 +26,7 @@ public interface TestPriceService extends IService<TestPrice> {
 
   void generateCsvs(String path, String fileName, List<TestPrice> object);
 
-  void saveTestPrice(TestPrice testPrice);
+   void saveTestPrice(TestPrice testPrice);
 
   default void spendTime(String path, String fileName, List<TestPrice> object) {
     long start = System.currentTimeMillis();
