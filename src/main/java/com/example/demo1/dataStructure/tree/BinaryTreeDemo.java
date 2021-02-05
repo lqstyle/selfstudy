@@ -122,7 +122,7 @@ public class BinaryTreeDemo {
                 }
 
                 if (this.right != null) {
-                    this.right.postdleIter();
+                    this.right.preIter();
                 }
                 System.out.printf("当前编号 %d, 当前名称 %s \n", this.no, this.name);
 
