@@ -2,22 +2,18 @@ package com.example.demo1.dataStructure.tree;
 
 /**
  * @author liangqing
- * @since 2021/2/5 10:50
+ * @since 2021/2/5 15:36
  */
-public class BinaryTreeDemo {
+public class BinaryTreeDelete {
 
     public static void main(String[] args) {
-        BinaryTree.TreeNode treeNode1 = buildBinaryTree();
-
-        BinaryTree binaryTree = new BinaryTree(treeNode1);
-        System.out.println("先序遍历输出结果");
-        binaryTree.preOrder();
-
-        System.out.println("中序遍历输出结果");
-        binaryTree.middleOrder();
-
-        System.out.println("后序遍历输出结果");
-        binaryTree.postOrder();
+        BinaryTreeDelete binaryTreeDelete = new BinaryTreeDelete();
+        BinaryTree.TreeNode binaryTree = binaryTreeDelete.buildBinaryTree();
+        System.out.println("删除前");
+        binaryTree.preIter();
+        binaryTree.deleteNode(2);
+        System.out.println("删除后");
+        binaryTree.preIter();
 
     }
 
@@ -44,12 +40,9 @@ public class BinaryTreeDemo {
     //二叉树
     static class BinaryTree {
 
-        public BinaryTree(TreeNode root) {
+        public BinaryTree(BinaryTree.TreeNode root) {
             this.root = root;
         }
-
-        //根节点
-        private TreeNode root;
 
         //先序遍历
         public void preOrder() {
@@ -60,22 +53,16 @@ public class BinaryTreeDemo {
             }
         }
 
-        //中序遍历
-        public void middleOrder() {
-            if (this.root != null) {
-                this.root.middleIter();
-            } else {
-                System.out.println("节点为空");
-            }
-        }
+        //根节点
+        private BinaryTree.TreeNode root;
 
-        //先序遍历
-        public void postOrder() {
-            if (this.root != null) {
-                this.root.postdleIter();
+        public void deleteNode(Integer no) {
+            if (this.root == null) {
+                return;
             } else {
-                System.out.println("节点为空");
+                root.deleteNode(no);
             }
+
         }
 
         //树节点
@@ -85,9 +72,9 @@ public class BinaryTreeDemo {
 
             private final String name;
 
-            private TreeNode left;
+            private BinaryTree.TreeNode left;
 
-            private TreeNode right;
+            private BinaryTree.TreeNode right;
 
             public TreeNode(int no, String name) {
                 this.no = no;
@@ -107,32 +94,6 @@ public class BinaryTreeDemo {
                 }
             }
 
-            //中序遍历  左根右
-            private void middleIter() {
-                if (this.left != null) {
-                    this.left.middleIter();
-                }
-
-                System.out.printf("当前编号 %d, 当前名称 %s \n", this.no, this.name);
-
-                if (this.right != null) {
-                    this.right.middleIter();
-                }
-            }
-
-            //后序遍历  左右根
-            private void postdleIter() {
-                if (this.left != null) {
-                    this.left.postdleIter();
-                }
-
-                if (this.right != null) {
-                    this.right.preIter();
-                }
-                System.out.printf("当前编号 %d, 当前名称 %s \n", this.no, this.name);
-
-            }
-
             @Override
             public String toString() {
                 return "TreeNode{" +
@@ -140,12 +101,41 @@ public class BinaryTreeDemo {
                         ", name='" + name + '\'' +
                         '}';
             }
+
+            private void deleteNode(int no) {
+            /*
+            1. 因为我们的二叉树是单向的，所以我们是判断当前结点的子结点是否需要删除结点
+            而不能去判断 当前这个结点是不是需要删除结点.
+            2. 如果当前结点的左子结点不为空，并且左子结点 就是要删除结点
+            就将 this.left = null; 并且就返回 (结束递归删除)
+            3. 如果当前结点的右子结点不为空，并且右子结点 就是要删除结点
+            就将 this.right= null ;并且就返回 (结束递归删除)
+            4. 如果第 2 和第 3 步没有删除结点，那么我们就需要向左子树进行递归删除
+            5. 如果第 4 步也没有删除结点，则应当向右子树进行递归删除
+             */
+
+                if (this.left != null && this.left.no == no) {
+                    this.left = null;
+                    return;
+                }
+                if (this.right != null && this.right.no == no) {
+                    this.right = null;
+                    return;
+                }
+
+                if (this.left != null) {
+                    this.left.deleteNode(no);
+                }
+
+                if (this.right != null) {
+                    this.right.deleteNode(no);
+                }
+
+            }
+
         }
 
     }
 
+
 }
-
-
-
-
