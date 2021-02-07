@@ -57,7 +57,8 @@ public class MiGong {
      *          1 是不可以走的
      *          2 已经走过并可以走的
      *          3 已经走过，并且不可以走的
-     *          定义走的策略  下 右 上 左
+     *          定义走的策略
+     *          下 右 上 左
      */
     public static Boolean setWay(int[][] m, int i, int j) {
         if (m[6][5] == 2) {
