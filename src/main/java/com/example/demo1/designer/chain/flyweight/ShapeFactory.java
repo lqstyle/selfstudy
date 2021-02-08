@@ -18,6 +18,7 @@ public class ShapeFactory {
     public static final HashMap<String, Shape> shapeMap = new HashMap<>();
 
     private static final String s = "";
+
     private static final Object o = new Object();
 
     public static Shape getShape(String color) {
